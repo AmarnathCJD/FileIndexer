@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    <title>CloudTorrent</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        /* add a colored line at bottom of all inputs for aesthteics */
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased ">
+    <div class="flex items-top justify-center mt-4">
+        <div class="w-full max-w-md">
+            <h1 class="text-3xl font-bold text-center font-mono">~</h1>
+        </div>
+    </div>
+
+    <div class="flex items-top justify-center mt-4 dark:bg-gray-900">
+        <div class="w-full max-w-2xl p-4">
+            <div class="flex items-center justify-center gap-2">
+                <input type="text" name="magnet"
+                    class="font-semibold w-full px-4 py-2 mb-4 rounded-lg border-gray-200 border-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-lg transition ease-in-out duration-150 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Enter Magnet / Http(s) / m3u8 link" />
+                <button id="download" data-tooltip-target="tooltip-save" data-tooltip-placement="right"
+                    class="mb-4 px-4 py-2 text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 ring-1 ring-green-500 focus:ring-2 focus:outline-none focus:ring-green-500 shadow-lg transition ease-in-out duration-150 dark:bg-indigo-400 dark:hover:bg-indigo-500"><i
+                        class="bi bi-cloud-drizzle-fill"></i></button>
+
+                <div id="tooltip-save" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Download
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
+            </div>
+
+            <!-- select engine -->
+            <div class="flex items-center justify-center gap-2">
+                <div id="tooltip-engine" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Select the engine to use for downloading
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+                <i id="engine-icon" data-tooltip-target="tooltip-engine" data-tooltip-placement="bottom"
+                class="bi bi-gear-fill text-yellow-500 mb-4 text-2xl"></i>
+                <select name="engine"
+                    class="w-1/2 px-4 py-2 mb-4 text-xs font-semibold rounded-lg border-gray-200 border-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-lg transition ease-in-out duration-150 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="1">raintorrent</option>
+                    <option value="2">aria2</option>
+                    <option value="3">yt-dlp</option>
+                    <option value="4">ffmpeg</option>
+                </select>
+            </div>
+
+            <div class="flex items-center justify-center gap-2">
+                <span id="torrent-name"
+                    class="text-xs font-bold text-black bg-white px-2 rounded-sm border border-green-500 shadow hidden dark:bg-gray-800 dark:border-gray-800 dark:text-gray-200"></span>
+                <span id="torrent-size"
+                    class="text-xs font-bold text-black bg-white px-2 rounded-sm border border-red-500 shadow hidden dark:bg-gray-800 dark:border-gray-800 dark:text-gray-200"></span>
+            </div>
+
+            <div id="torrent-files" class="flex flex-col gap-0 items-center justify-center hidden mt-2">
+                <div id="torrent-files" class="hidden"></div>
+            </div>
+
+            <div id="edit-form" class="hidden mt-4 flex flex-col items-center justify-center gap-4 mb-2">
+                <input type="text" name="name"
+                    class="w-1/2 px-4 py-2 text-sm rounded-lg border-gray-300 border-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-lg transition ease-in-out duration-150"
+                    placeholder="Torrent Name" />
+                <textarea type="textarea" name="trackers"
+                    class="w-1/2 px-4 py-2 text-sm rounded-lg border-gray-300 border-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-lg transition ease-in-out duration-150"
+                    placeholder="trackers" rows="2"></textarea>
+            </div>
+
+            <div class="flex items-center justify-center p-4 gap-8 mt-0">
+                <button id="upload-torrent" data-tooltip-target="tooltip-upload" data-tooltip-placement="bottom"
+                    class="px-4 py-2 text-white bg-yellow-500 rounded-lg hover:bg-indigo-600 shadow-lg transition ease-in-out duration-150"><i
+                        class="bi bi-currency-bitcoin"></i></button>
+                <i class="bi bi-stars text-yellow-400"></i>
+                <button id="edit-button" data-tooltip-target="tooltip-edit" data-tooltip-placement="bottom"
+                    class="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 shadow-lg transition ease-in-out duration-150"><i
+                        class="bi bi-brilliance"></i></button>
+                <i class="bi bi-stars text-yellow-400"></i>
+                <button id="clear-button" data-tooltip-target="tooltip-clear" data-tooltip-placement="bottom"
+                    class="px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 shadow-lg transition ease-in-out duration-150"><i
+                        class="bi bi-x-circle"></i></button>
+
+                <div id="tooltip-upload" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Upload a torrent file
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+                <div id="tooltip-edit" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Edit Metadata
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+                <div id="tooltip-clear" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    Clear the form
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+            </div>
+
+
+            <div id="torrents" class="flex flex-col gap-4 max-w-4xl mx-auto mt-4"></div>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <!-- jquery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://nutbread.github.io/t2m/src/bencode.js"></script>
+    <script src="https://nutbread.github.io/t2m/src/base32.js"></script>
+
+
+    <script>
+        const download = async () => {
+            const magnet = document.querySelector('input[name="magnet"]').value;
+            const response = await axios.post('/api/download', {
+                magnet
+            });
+            console.log(response.data);
+        }
+
+        document.querySelector('#download').addEventListener('click', download);
+
+        // onclick of upload-torrent button, open file dialog
+        document.querySelector('#upload-torrent').addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.torrent';
+            input.onchange = async () => {
+                if (!input.files.length) {
+                    return;
+                }
+                torrentToMagnet(input.files[0]);
+            }
+            input.click();
+        });
+
+        function torrentToMagnet(torrent) {
+            // use base32 and bencode libraries to convert torrent file to magnet link
+
+            const reader = new FileReader();
+            reader.onload = async function (e) {
+                const torrentData = e.target.result;
+                const decoded = Bencode.decode(torrentData);
+                const encoded = Bencode.encode(decoded.info);
+
+                const buff = new ArrayBuffer(encoded.length);
+                const view = new Uint8Array(buff);
+                for (let i = 0; i < encoded.length; i++) {
+                    view[i] = encoded.charCodeAt(i);
+                }
+
+                const hashBuffer = await crypto.subtle.digest('SHA-1', buff);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const digest = String.fromCharCode.apply(null, hashArray);
+
+                const b32hash = Base32.encode(digest);
+                const result = b32hash.replace(/=+$/, '');
+                const magnet = `magnet:?xt=urn:btih:${result}&dn=${decoded.info.name}&tr=${decoded.announce}`;
+
+                $('#upload-torrent').html('<i class="bi bi-file-earmark-arrow-up"></i>');
+                document.querySelector('input[name="magnet"]').value = magnet;
+                console
+                $('#torrent-name').html(decoded.info.name).removeClass('hidden');
+                $('#torrent-size').html(calculateSize(decoded.info)).removeClass('hidden');
+
+                const files = decoded.info.files;
+                if (files) {
+                    const filesDiv = document.querySelector('#torrent-files');
+                    filesDiv.innerHTML = '';
+                    files.forEach((file) => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `<span class="text-xs font-bold text-black bg-white px-2 shadow dark:bg-gray-800 dark:border-gray-800 dark:text-gray-200">@ ${file.path.join('/')} (${humanFileSize(file.length)})</span>`;
+                        filesDiv.appendChild(div);
+                    });
+                    filesDiv.classList.remove('hidden');
+                }
+            };
+            reader.readAsBinaryString(torrent);
+        }
+
+        function calculateSize(info) {
+            var size = info.files.reduce((acc, file) => acc + file.length, 0);
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            let i = 0;
+            while (size > 1024) {
+                size /= 1024;
+                i++;
+            }
+
+            return `${size.toFixed(2)} ${units[i]}`;
+        }
+
+        function humanFileSize(size) {
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            let i = 0;
+            while (size > 1024) {
+                size /= 1024;
+                i++;
+            }
+
+            return `${size.toFixed(2)} ${units[i]}`;
+        }
+
+        document.querySelector('#edit-button').addEventListener('click', () => {
+            // open a form to edit the name and trackers
+
+            // if the form is already open, close it
+            if (!document.querySelector('#edit-form').classList.contains('hidden')) {
+                document.querySelector('#edit-form').classList.add('hidden');
+                $('#edit-button').html('<i class="bi bi-brilliance"></i>');
+                $('#edit-button').attr('data-tooltip-target', 'tooltip-edit');
+
+                return;
+            }
+
+            $('#edit-button').html('<i class="bi bi-check-circle"></i>');
+            $('#edit-button').attr('data-tooltip-target', 'tooltip-changes');
+
+            document.querySelector('#edit-form').classList.remove('hidden');
+            $('#edit-form input[name="name"]').val($('#torrent-name').html());
+            $('#edit-form input[name="trackers"]').val(document.querySelector('input[name="magnet"]').value.split('&tr=')[1]);
+
+            form = document.querySelector('#save-button')
+
+            form.onclick = (e) => {
+                const name = document.querySelector('input[name="name"]').value;
+                const trackers = document.querySelector('input[name="trackers"]').value;
+                const magnet = document.querySelector('input[name="magnet"]').value;
+                const parts = magnet.split('&');
+                const newMagnet = `${parts[0]}&dn=${name}&tr=${trackers}`;
+                document.querySelector('input[name="magnet"]').value = newMagnet;
+                document.querySelector('#torrent-name').innerHTML = name;
+                document.querySelector('#edit-form').classList.add('hidden');
+            }
+
+        });
+
+        $('#clear-button').click(() => {
+            document.querySelector('input[name="magnet"]').value = '';
+            document.querySelector('#torrent-name').classList.add('hidden');
+            document.querySelector('#torrent-size').classList.add('hidden');
+            document.querySelector('#torrent-files').classList.add('hidden');
+        });
+
+        function setDynamicBottomBorderForInputs() {
+            const inputs = document.querySelectorAll('input');
+            colors = ['red', 'green', 'blue', 'yellow', 'purple', 'pink', 'indigo', 'teal', 'cyan', 'orange'];
+
+            // each 6s, change the color of the border
+
+            setInterval(() => {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                inputs.forEach((input) => {
+                    input.style.borderBottom = `1px solid ${color}`;
+                });
+            }, 800);
+        }
+
+        const dummyData = [
+            {
+                name: 'Ubuntu 20.04 LTS',
+                size: '2.4 GB',
+                done_size: '1.3 GB',
+                files: [
+                    {
+                        name: 'ubuntu-20.iso',
+                        size: '2.4 GB'
+                    }
+                ],
+                speed: '1.2 MB/s',
+                peers: 12,
+                seeds: 4,
+                progress: 20,
+                eta: '2 hours',
+                status: 'Downloading'
+            },
+            {
+                name: 'Windows 10 Pro',
+                size: '4.2 GB',
+                done_size: '3.2 GB',
+                files: [
+                    {
+                        name: 'windows-10.iso',
+                        size: '4.2 GB'
+                    }
+                ],
+                speed: '2.2 MB/s',
+                peers: 8,
+                seeds: 2,
+                progress: 10,
+                eta: '3 hours',
+                status: 'Paused'
+            },
+        ]
+
+        function renderTorrents() {
+            const torrents = document.querySelector('#torrents');
+            torrents.innerHTML = '';
+            const current = new Date();
+            const renderTime = `${current.getHours()}:${current.getMinutes()} ${current.getDate()}/${current.getMonth()}/${current.getFullYear()}`;
+            var i = 0;
+            dummyData.forEach((torrent) => {
+                const div = document.createElement('div');
+                // in remaining area, progress bar on bottom and (speed, peers, seeds) on top
+                div.innerHTML = `
+<div
+    class="w-full max-w-3xl px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 bg-white rounded-lg dark:bg-gray-800 border-2 border-gray-200 shadow-lg mx-auto">
+    <div class="flex items-start gap-4 w-full md:w-2/3">
+        <div class="flex-grow min-w-0">
+            <img src="https://envs.sh/e3T.png" alt="torrent-file-icon" class="w-12 h-12">
+            <div id="tooltip-view-${i}" role="tooltip"
+                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                View Files
+                <div class="tooltip-arrow" data-popper-arrow></div>
+            </div>
+            <div class="z-1 flex flex-col items-center justify-center gap-0 w-full md:w-auto">
+                <i id="down-arrow-${i}" data-tooltip-target="tooltip-view-${i}" data-tooltip-placement="bottom"
+                    onclick="alert('clicked')"
+                    class="bi bi-chevron-down text-indigo-500 bg-white rounded-full shadow-lg dark:bg-gray-800 dark:border-gray-800 dark:text-gray-200"></i>
+            </div>
+        </div>
+
+        <div class="flex-grow min-w-0">
+            <h2 class="text-md font-semibold text-black dark:text-gray-200">${torrent.name}</h2>
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400">${torrent.done_size} / ${torrent.size} (~
+                ${torrent.eta})</p>
+            <div class="w-48 flex items-center gap-2 mt-1">
+                <div class="w-full h-2 bg-gray-200 rounded-full dark:bg-gray-700">
+                    <div class="h-2 ${getStatusAccent(torrent.status)} rounded-full"
+                        style="width: ${torrent.progress}%;"></div>
+                </div>
+                <p class="whitespace-nowrap text-xs font-bold text-gray-500 dark:text-gray-400">${torrent.progress}%</p>
+            </div>
+
+        </div>
+    </div>
+    <div class="flex flex-col items-end gap-1 w-full md:w-1/3">
+        <div class="flex items-center gap-2 w-full md:w-auto">
+            <p class="whitespace-nowrap text-xs font-bold" style="color: #558B6E; dark:color: #3E5D4F;">
+                (${torrent.speed})
+            </p>
+            <p class="whitespace-nowrap text-xs font-bold" style="color: #8B3A3A; dark:color: #612929;">
+                ( <span style="" class="dark:text-red-300 text-indigo-600">${torrent.peers} PEERS </span>, <span
+                    style="color: #558B6E; dark:color: #3E5D4F;">${torrent.seeds} SEEDS</span> )
+            </p>
+        </div>
+        <div class="flex items-center gap-2 w-full md:w-auto">
+            <p class="whitespace-nowrap text-xs font-bold" style="color: #C8B438; dark:color: #8F851E;">
+                ${renderTime}
+            </p>
+        </div>
+    </div>
+
+    <div id="tooltip-resume-${i}" role="tooltip"
+        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+        Resume
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+    <div id="tooltip-pause-${i}" role="tooltip"
+        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+        Pause
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+    <div id="tooltip-delete-${i}" role="tooltip"
+        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+        Delete
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+
+    <div class="flex items-end gap-1 w-full md:w-auto ml-1 md:ml-0">
+        <button type="button" data-tooltip-target="tooltip-resume-${i}" data-tooltip-placement="bottom"
+            class="px-4 py-1 text-white bg-green-500 rounded-md hover:bg-green-600 shadow-lg transition ease-in-out duration-150"><i
+                class="bi bi-play-fill"></i></button>
+        <button type="button" data-tooltip-target="tooltip-pause-${i}" data-tooltip-placement="bottom"
+            class="px-4 py-1 text-white bg-yellow-500 rounded-md hover:bg-yellow-600 shadow-lg transition ease-in-out duration-150"><i
+                class="bi bi-pause-fill"></i></button>
+        <button type="button" data-tooltip-target="tooltip-delete-${i}" data-tooltip-placement="bottom"
+            class="px-4 py-1 text-white bg-red-500 rounded-md hover:bg-red-600 shadow-lg transition ease-in-out duration-150"><i
+                class="bi bi-x-circle"></i></button>
+    </div>
+</div>`;
+
+                torrents.appendChild(div);
+                i++;
+            });
+
+        }
+
+        function getStatusAccent(status) {
+            switch (status) {
+                case 'Downloading':
+                    return 'bg-green-500';
+                case 'Paused':
+                    return 'bg-yellow-400';
+                case 'Completed':
+                    return 'bg-blue-500';
+                case 'Error':
+                    return 'bg-red-500';
+                default:
+                    return 'bg-gray-500';
+            }
+        }
+
+        renderTorrents();
+
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+
+</html>
